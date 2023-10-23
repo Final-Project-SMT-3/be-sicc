@@ -24,12 +24,19 @@ class UsersModel{
     public function login($request = []){
         $param = new stdClass();
         // $password = '-.' . md5($request['password']) . '.-';
-        $password = trim($request['password']);
-        $username = trim($request['username']);
+        $password = htmlspecialchars(strip_tags(trim($request['password'])));
+        $username = htmlspecialchars(strip_tags(trim($request['username'])));
         try{
-            $res = $this->getData("SELECT * FROM users WHERE password = '$password' AND username = '$username' LIMIT 1");
+            $query = "SELECT * FROM users WHERE password = :pass AND username = :user LIMIT 1";
+
+            $result = $this->conn->prepare($query);
+            $result->bindParam(":pass", $password);
+            $result->bindParam(":user", $username);
+            $result->execute();
+            $result->setFetchMode(PDO::FETCH_ASSOC);
+            $res = $result->fetchAll();
             // var_dump($res);
-            if(count($res) > 0){
+            if($res){
                 $param->status_code = 200;
                 $param->message = 'Success';
                 $param->response = $res[0];
