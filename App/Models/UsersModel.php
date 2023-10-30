@@ -27,7 +27,7 @@ class UsersModel{
         $password = htmlspecialchars(strip_tags(trim($request['password'])));
         $username = htmlspecialchars(strip_tags(trim($request['username'])));
         try{
-            $query = "SELECT us.*, k.nama_kelompok, k.nim_anggota, k.nama_anggota, dospem.no_identitas as no_identitas_dosen, dospem.nama as nama_dospem, detail_lomba.detail_lomba FROM users as us join kelompok as k on us.id = k.id_mhs JOIN pemilihan_dospem as pd on pd.id_mhs = us.id join users as dospem on dospem.id = pd.id_dosen JOIN master_detail_lomba as detail_lomba ON detail_lomba.id = k.id_detail_lomba WHERE pd.status = 'Accept' AND us.password = :pass AND us.username = :user LIMIT 1";
+            $query = "SELECT us.*, k.nama_kelompok, k.nim_anggota, k.nama_anggota, dospem.no_identitas as no_identitas_dosen, dospem.nama as nama_dospem, master_lomba.nama_lomba FROM users as us join kelompok as k on us.id = k.id_mhs JOIN pemilihan_dospem as pd on pd.id_mhs = us.id join users as dospem on dospem.id = pd.id_dosen JOIN master_detail_lomba as detail_lomba ON detail_lomba.id = k.id_detail_lomba join master_lomba on master_lomba.id = detail_lomba.id_mst_lomba WHERE pd.status = 'Accept' AND us.password = :pass AND us.username = :user LIMIT 1";
 
             $result = $this->conn->prepare($query);
             $result->bindParam(":pass", $password);
@@ -42,7 +42,7 @@ class UsersModel{
                 $param->status = 'Sudah memilih dosen pembimbing.';
                 $param->response = $res[0];
             } else{
-                $query = "SELECT us.*, k.nama_kelompok, k.nim_anggota, k.nama_anggota, detail_lomba.detail_lomba FROM users as us join kelompok as k on us.id = k.id_mhs JOIN master_detail_lomba as detail_lomba ON detail_lomba.id = k.id_detail_lomba WHERE us.password = :pass AND us.username = :user LIMIT 1";
+                $query = "SELECT us.*, k.nama_kelompok, k.nim_anggota, k.nama_anggota, master_lomba.nama_lomba FROM users as us join kelompok as k on us.id = k.id_mhs JOIN master_detail_lomba as detail_lomba ON detail_lomba.id = k.id_detail_lomba join master_lomba on master_lomba.id = detail_lomba.id_mst_lomba WHERE us.password = :pass AND us.username = :user LIMIT 1";
                 
                 $result = $this->conn->prepare($query);
                 $result->bindParam(":pass", $password);
