@@ -45,22 +45,22 @@ class LombaModel{
                     }
                 }
 
-                $this->param->status = 200;
-                $this->param->message = 'Berhasil menampilkan seluruh data';
-                $this->param->data = $res;
+                $this->param->status_code = 200;
+                $this->param->message = 'Success';
+                $this->param->response = $res;
             } else{
-                $this->param->status = 200;
+                $this->param->status_code = 200;
                 $this->param->message = 'Data tidak ditemukan';
-                $this->param->data = null;
+                $this->param->response = '';
             }
         }  catch(Exception $e){
-            $this->param->status = 500;
+            $this->param->status_code = 500;
             $this->param->message = 'Terjadi kesalahan. ' . $e->getMessage();
-            $this->param->data = null;
+            $this->param->response = '';
         } catch(PDOException $e){
-            $this->param->status = 500;
+            $this->param->status_code = 500;
             $this->param->message = 'Terjadi kesalahan. ' . $e->getMessage();
-            $this->param->data = null;
+            $this->param->response = '';
         }
         finally{
             return $this->param;
@@ -68,33 +68,38 @@ class LombaModel{
     }
 
     public function getRequestedData($request = []){
+        $param = new stdClass();
+
+        $id_detail_lomba = htmlspecialchars(trim($request['id_lomba']));
+
         try{
-            $query = "SELECT master_lomba.nama_lomba, pelaksanaan_lomba.*, detail_pelaksanaan_lomba.tanggal_mulai, detail_pelaksanaan_lomba.tanggal_akhir, detail_pelaksanaan_lomba.status FROM pelaksanaan_lomba JOIN detail_pelaksanaan_lomba ON detail_pelaksanaan_lomba.id_pelaksanaan_lomba = pelaksanaan_lomba.id JOIN master_lomba ON master_lomba.id = pelaksanaan_lomba.id_mst_lomba JOIN master_detail_lomba on master_detail_lomba.id_mst_lomba = master_lomba.id where master_detail_lomba.id = :id";
+            $query = "SELECT master_lomba.nama_lomba, master_detail_lomba.foto, master_detail_lomba.detail_lomba, pelaksanaan_lomba.tanggal, pelaksanaan_lomba.info, detail_pelaksanaan_lomba.status, detail_pelaksanaan_lomba.tanggal_mulai, detail_pelaksanaan_lomba.tanggal_akhir FROM pelaksanaan_lomba JOIN detail_pelaksanaan_lomba ON detail_pelaksanaan_lomba.id_pelaksanaan_lomba = pelaksanaan_lomba.id JOIN master_lomba ON master_lomba.id = pelaksanaan_lomba.id_mst_lomba JOIN master_detail_lomba on master_detail_lomba.id_mst_lomba = master_lomba.id where master_detail_lomba.id = :id";
 
             $result = $this->conn->prepare($query);
-            $result->bindParam(":id", $request['id_detail_lomba']);
+            $result->bindParam(":id", $id_detail_lomba);
             $result->execute();
             $result->setFetchMode(PDO::FETCH_ASSOC);
             $res = $result->fetchAll();
+
             if($res){
-                $this->param->status = 200;
-                $this->param->message = 'Berhasil menampilkan seluruh data';
-                $this->param->data = $res;
+                $param->status_code = 200;
+                $param->message = 'Success';
+                $param->response = $res;
             } else{
-                $this->param->status = 200;
-                $this->param->message = 'Data tidak ditemukan';
-                $this->param->data = null;
+                $param->status_code = 200;
+                $param->message = 'Data tidak ditemukan';
+                $param->response = '';
             }
         } catch(Exception $e){
-            $this->param->status = 500;
-            $this->param->message = 'Terjadi kesalahan. ' . $e->getMessage();
-            $this->param->data = null;           
+            $param->status_code = 500;
+            $param->message = 'Terjadi kesalahan. ' . $e->getMessage();
+            $param->response = '';           
         } catch(PDOException $e){
-            $this->param->status = 500;
-            $this->param->message = 'Terjadi kesalahan. ' . $e->getMessage();
-            $this->param->data = null;           
+            $param->status_code = 500;
+            $param->message = 'Terjadi kesalahan. ' . $e->getMessage();
+            $param->response = '';           
         } finally{
-            return $this->param;
+            return json_encode($param);
         }
     }
 }

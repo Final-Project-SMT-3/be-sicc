@@ -6,7 +6,7 @@ class Model {
     public function __construct()
     {
         try{
-            $this->conn = new PDO(DB_HOST, DB_USER, DB_PASS);
+            $this->conn = new PDO(HOST, USER, PASS);
         } catch(PDOException $e){
             die($e->getMessage());
         }

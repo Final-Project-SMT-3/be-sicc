@@ -32,4 +32,24 @@ class LombaController extends Controller{
             echo json_encode($response);
         }
     }
+
+    public function getDetailLomba(){
+        if(isset($_SERVER['HTTP_HTTP_TOKEN'])){
+            if($_SERVER['HTTP_HTTP_TOKEN'] == $this->getToken()){
+                echo $this->model->getRequestedData($_POST);
+            } else{
+                $response = new stdClass;
+                $response->code = 403;
+                $response->message = 'Access Forbidden.';
+
+                echo json_encode($response);
+            }
+        } else{
+            $response = new stdClass;
+            $response->code = 403;
+            $response->message = 'Access Forbidden.';
+
+            echo json_encode($response);
+        }
+    }
 }
