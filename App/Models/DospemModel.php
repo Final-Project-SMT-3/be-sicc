@@ -17,7 +17,7 @@ class DospemModel{
 
     public function getDospem(){
         try{
-            $query = "SELECT * FROM users where tipe = 'dosen'";
+            $query = "SELECT * FROM users where tipe = 'dosen' AND status_dosen = 'Tersedia'";
             $result = $this->conn->prepare($query);
             $result->execute();
             $result->setFetchMode(PDO::FETCH_ASSOC);
