@@ -84,7 +84,7 @@ class LombaModel{
             if($res){
                 $param->status_code = 200;
                 $param->message = 'Success';
-                $param->response = $res;
+                $param->response = $res[0];
             } else{
                 $param->status_code = 200;
                 $param->message = 'Data tidak ditemukan';

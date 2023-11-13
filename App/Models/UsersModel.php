@@ -53,17 +53,18 @@ class UsersModel{
                 if($res){
                     $param->status_code = 200;
                     $param->message = 'Success';
-                    $param->message = 'Belum memilih dosen pembimbing.';
+                    $param->status = 'Belum memilih dosen pembimbing.';
                     $param->response = $res[0];
                 } else{
                     $param->status_code = 200;
                     $param->message = 'Data tidak ditemukan.';
-                    $param->response = null;
+                    $param->response = '';
                 }
             }
         } catch(PDOException $e){
             $param->status_code = 500;
             $param->message = 'Server Error. ' . $e->getMessage();
+            $param->response = '';    
         } finally{
             return json_encode($param);
         }
@@ -107,8 +108,8 @@ class UsersModel{
                 $this->conn->commit();
                 if($resKelompok){
                     $param->status = 200;
-                    $param->message = 'Berhasil menambahkan kelompok baru.';
-                    $param->response = '';
+                    $param->message = 'Success';
+                    $param->response = 'Berhasil menambahkan kelompok baru.';
                 } else{
                     $this->conn->rollBack();
                     $param->status = 500;
