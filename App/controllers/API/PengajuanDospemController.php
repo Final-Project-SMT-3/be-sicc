@@ -29,6 +29,26 @@ class PengajuanDospemController extends Controller{
         }
     }
 
+    public function getDetailDospem(){
+        if(isset($_SERVER['HTTP_HTTP_TOKEN'])){
+            if($_SERVER['HTTP_HTTP_TOKEN'] == $this->getToken()){
+                echo $this->model->getDetailDospem($_POST);
+            } else{
+                $response = new stdClass;
+                $response->code = 403;
+                $response->message = 'Access Forbidden.';
+
+                echo json_encode($response);
+            }
+        } else{
+            $response = new stdClass;
+            $response->code = 403;
+            $response->message = 'Access Forbidden.';
+
+            echo json_encode($response);
+        }
+    }
+
     public function pengajuanDospem(){
         if(isset($_SERVER['HTTP_HTTP_TOKEN'])){
             if($_SERVER['HTTP_HTTP_TOKEN'] == $this->getToken()){

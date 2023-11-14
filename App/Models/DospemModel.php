@@ -17,7 +17,7 @@ class DospemModel{
 
     public function getDospem(){
         try{
-            $query = "SELECT * FROM users where tipe = 'dosen' AND status_dosen = 'Tersedia'";
+            $query = "SELECT * FROM users where tipe = 'dosen'";
             $result = $this->conn->prepare($query);
             $result->execute();
             $result->setFetchMode(PDO::FETCH_ASSOC);
@@ -44,6 +44,42 @@ class DospemModel{
             return $this->param;
         }
     } 
+
+    public function getDetailDospem($request = []) {
+        $param = new stdClass();
+
+        $id_dosen = htmlspecialchars(trim($request['id_dosen']));
+
+        try {
+            $query = "SELECT * FROM users where id = :id_dosen";
+
+            $result = $this->conn->prepare($query);
+            $result->bindParam(":id_dosen", $id_dosen);
+            $result->execute();
+            $result->setFetchMode(PDO::FETCH_ASSOC);
+            $res = $result->fetchAll();
+
+            if($res){
+                $param->status_code = 200;
+                $param->message = 'Success';
+                $param->response = $res[0];
+            } else{
+                $param->status_code = 200;
+                $param->message = 'Data tidak ditemukan';
+                $param->response = '';
+            }
+        } catch(Exception $e){
+            $param->status_code = 500;
+            $param->message = 'Terjadi kesalahan. ' . $e->getMessage();
+            $param->response = '';           
+        } catch(PDOException $e){
+            $param->status_code = 500;
+            $param->message = 'Terjadi kesalahan. ' . $e->getMessage();
+            $param->response = '';           
+        } finally{
+            return json_encode($param);
+        }
+    }
 
     public function pengajuanDospem($request = []){
         $this->conn->beginTransaction();
