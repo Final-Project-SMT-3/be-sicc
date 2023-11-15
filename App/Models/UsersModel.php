@@ -21,74 +21,53 @@ class UsersModel{
         return $this->statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function login($request = []){
+    public function login($request = []) {
         $param = new stdClass();
-        // $password = '-.' . md5($request['password']) . '.-';
         $password = htmlspecialchars(strip_tags(trim($request['password'])));
         $username = htmlspecialchars(strip_tags(trim($request['username'])));
-        try{
+    
+        try {
             $query = "SELECT us.*, k.nama_kelompok, k.nim_anggota, k.nama_anggota, dospem.no_identitas as no_identitas_dosen, 
-                        dospem.nama as nama_dospem, master_lomba.nama_lomba 
+                        dospem.nama as nama_dospem, master_lomba.nama_lomba, pd.status as status_dospem
                         FROM users as us 
                         JOIN kelompok as k on us.id = k.id_mhs 
-                        JOIN pemilihan_dospem as pd on pd.id_mhs = us.id 
-                        JOIN users as dospem on dospem.id = pd.id_dosen 
+                        LEFT JOIN pemilihan_dospem as pd on pd.id_mhs = us.id
+                        LEFT JOIN users as dospem on dospem.id = pd.id_dosen 
                         JOIN master_detail_lomba as detail_lomba ON detail_lomba.id = k.id_detail_lomba 
                         JOIN master_lomba on master_lomba.id = detail_lomba.id_mst_lomba 
-                        WHERE pd.status = 'Accept' AND us.password = :pass AND us.username = :user 
+                        WHERE us.password = :pass AND us.username = :user 
                         LIMIT 1";
-
+    
             $result = $this->conn->prepare($query);
             $result->bindParam(":pass", $password);
             $result->bindParam(":user", $username);
             $result->execute();
             $result->setFetchMode(PDO::FETCH_ASSOC);
             $res = $result->fetchAll();
-            // var_dump($res);
-            if($res){
+    
+            if ($res) {
                 $param->status_code = 200;
                 $param->message = 'Success';
-                $param->status = 'Sudah memilih dosen pembimbing.';
-                $param->response = $res[0];
-            } else{
-                $query = "SELECT us.*, k.nama_kelompok, k.nim_anggota, k.nama_anggota, master_lomba.nama_lomba 
-                            FROM users as us 
-                            JOIN kelompok as k on us.id = k.id_mhs 
-                            JOIN master_detail_lomba as detail_lomba ON detail_lomba.id = k.id_detail_lomba 
-                            JOIN master_lomba on master_lomba.id = detail_lomba.id_mst_lomba 
-                            WHERE us.password = :pass AND us.username = :user 
-                            LIMIT 1";
-                
-                $result = $this->conn->prepare($query);
-                $result->bindParam(":pass", $password);
-                $result->bindParam(":user", $username);
-                $result->execute();
-                $result->setFetchMode(PDO::FETCH_ASSOC);                
-                $res = $result->fetchAll();
-                
-                // Set Nama Dosen Pembimbing Into Null
-                $res[0]['no_identitas_dosen'] = null;
-                $res[0]['nama_dospem'] = null;
-                
-                if($res){
-                    $param->status_code = 200;
-                    $param->message = 'Success';
-                    $param->status = 'Belum memilih dosen pembimbing.';
-                    $param->response = $res[0];
-                } else{
-                    $param->status_code = 200;
-                    $param->message = 'Data tidak ditemukan.';
-                    $param->response = '';
+    
+                if (isset($res[0]['status'])) {
+                    $param->status = $res[0]['status'];
+                } else {
+                    $param->status = "Belum Memilih Dosen Pembimbing.";
                 }
+    
+                $param->response = $res[0];
+            } else {
+                $param->status_code = 200;
+                $param->message = 'Data tidak ditemukan.';
+                $param->response = '';
             }
-        } catch(PDOException $e){
+        } catch (PDOException $e) {
             $param->status_code = 500;
             $param->message = 'Server Error. ' . $e->getMessage();
-            $param->response = '';    
-        } finally{
+            $param->response = '';
+        } finally {
             return json_encode($param);
         }
-
     }
 
     public function register($request = []){
