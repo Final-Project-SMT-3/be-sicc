@@ -1,12 +1,10 @@
 <?php
 
 class PengajuanDospemController extends Controller{
-    private $response;
     private $model;
 
     public function __construct()
     {
-        $this->response = new stdClass;
         require_once '../App/Models/DospemModel.php';
         $this->model = new DospemModel;
     }
@@ -16,16 +14,18 @@ class PengajuanDospemController extends Controller{
             if($_SERVER['HTTP_HTTP_TOKEN'] == $this->getToken()){
                 echo json_encode($this->model->getDospem());
             } else{
-                $this->response->code = 403;
-                $this->response->message = 'Access Forbidden.';
+                $response = new stdClass;
+                $response->code = 403;
+                $response->message = 'Access Forbidden.';
 
-                echo json_encode($this->response);
+                echo json_encode($response);
             }
         } else{
-            $this->response->code = 403;
-            $this->response->message = 'Access Forbidden.';
+            $response = new stdClass;
+            $response->code = 403;
+            $response->message = 'Access Forbidden.';
 
-            echo json_encode($this->response);
+            echo json_encode($response);
         }
     }
 
@@ -54,16 +54,18 @@ class PengajuanDospemController extends Controller{
             if($_SERVER['HTTP_HTTP_TOKEN'] == $this->getToken()){
                 echo json_encode($this->model->pengajuanDospem($_POST));
             } else{
-                $this->response->code = 403;
-                $this->response->message = 'Access Forbidden.';
+                $response = new stdClass;
+                $response->code = 403;
+                $response->message = 'Access Forbidden.';
 
-                echo json_encode($this->response);
+                echo json_encode($response);
             }
         } else{
-            $this->response->code = 403;
-            $this->response->message = 'Access Forbidden.';
+            $response = new stdClass;
+            $response->code = 403;
+            $response->message = 'Access Forbidden.';
 
-            echo json_encode($this->response);
+            echo json_encode($response);
         }
     }
 }

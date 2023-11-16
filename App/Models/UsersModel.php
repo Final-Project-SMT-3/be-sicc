@@ -49,10 +49,11 @@ class UsersModel{
                 $param->status_code = 200;
                 $param->message = 'Success';
     
-                if (isset($res[0]['status'])) {
-                    $param->status = $res[0]['status'];
+                if (isset($res[0]['status_dospem'])) {
+                    $param->status = $res[0]['status_dospem'];
                 } else {
                     $param->status = "Belum Memilih Dosen Pembimbing.";
+                    $res[0]['status_dospem'] = "Belum Memilih Dosen Pembimbing.";
                 }
     
                 $param->response = $res[0];

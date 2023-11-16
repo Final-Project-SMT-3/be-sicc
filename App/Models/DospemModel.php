@@ -93,12 +93,12 @@ class DospemModel{
             $res = $result->execute();
             $this->conn->commit();
             if($res){
-                $this->param->status = 200;
+                $this->param->status_code = 200;
                 $this->param->message = 'Success';
                 $this->param->response = 'Berhasil menambahkan data pengajuan dosen pembimbing baru.';
             } else {
                 $this->conn->rollBack();
-                $this->param->status = 500;
+                $this->param->status_code = 500;
                 $this->param->message = 'Terjadi kesalahan.';
                 $this->param->response = '';
             }
