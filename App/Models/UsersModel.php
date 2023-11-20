@@ -71,6 +71,79 @@ class UsersModel{
         }
     }
 
+    public function getDataUser($request = []) {
+        $param = new stdClass();
+        $id_user = htmlspecialchars(trim($request['id_user']));
+    
+        try {
+            $query = "SELECT us.*,
+                            k.nama_kelompok,
+                            k.nim_anggota,
+                            k.nama_anggota,
+                            dospem.no_identitas AS no_identitas_dosen,
+                            dospem.nama AS nama_dospem,
+                            master_lomba.nama_lomba,
+                            pd.status AS status_dospem,
+                            sj.status AS status_judul,
+                            sp.status AS status_proposal
+                    FROM users AS us
+                    JOIN kelompok AS k ON us.id = k.id_mhs
+                    LEFT JOIN pemilihan_dospem AS pd ON pd.id_mhs = us.id
+                    LEFT JOIN users AS dospem ON dospem.id = pd.id_dosen
+                    JOIN master_detail_lomba AS detail_lomba ON detail_lomba.id = k.id_detail_lomba
+                    JOIN master_lomba ON master_lomba.id = detail_lomba.id_mst_lomba
+                    LEFT JOIN submit_judul AS sj ON sj.id_dospem = pd.id
+                    LEFT JOIN submit_proposal AS sp ON sp.id_judul = sj.id
+                    WHERE us.id = :id_user
+                    LIMIT 1";
+    
+            $result = $this->conn->prepare($query);
+            $result->bindParam(":id_user", $id_user);
+            $result->execute();
+            $result->setFetchMode(PDO::FETCH_ASSOC);
+            $res = $result->fetchAll();
+    
+            if ($res) {
+                $param->status_code = 200;
+                $param->message = 'Success';
+
+                if ($res[0]['status_dospem'] != null && $res[0]['status_judul'] == null && $res[0]['status_proposal'] == null) {
+                    if ($res[0]['status_dospem'] == "Accept") {
+                        $param->status = "Belum Mengajukan Judul.";
+                        $res[0]['status_judul'] = "Belum Mengajukan Judul.";
+                    } else {
+                        $param->status = $res[0]['status_dospem'] . " Dospem";
+                    }
+                } else if ($res[0]['status_dospem'] == null && $res[0]['status_judul'] == null && $res[0]['status_proposal'] == null) {
+                    $param->status = "Belum Memilih Dosen Pembimbing.";
+                    $res[0]['status_dospem'] = "Belum Memilih Dosen Pembimbing.";
+                } else if ($res[0]['status_judul'] != null && $res[0]['status_proposal'] == null && $res[0]['status_dospem'] == "Accept") {
+                    if ($res[0]['status_judul'] == "Accept") {
+                        $param->status = "Belum Mengajukan Proposal.";
+                        $res[0]['status_proposal'] = "Belum Mengajukan Proposal.";
+                    } else {
+                        $param->status = $res[0]['status_judul'] . " Judul";
+                    }
+                } else if ($res[0]['status_proposal'] != null && $res[0]['status_judul'] == "Accept" && $res[0]['status_dospem'] == "Accept") {
+                    $param->status = $res[0]['status_proposal'] . " Proposal";
+                } 
+                
+            
+                $param->response = $res[0];
+            } else {
+                $param->status_code = 200;
+                $param->message = 'Data tidak ditemukan.';
+                $param->response = '';
+            }
+        } catch (PDOException $e) {
+            $param->status_code = 500;
+            $param->message = 'Server Error. ' . $e->getMessage();
+            $param->response = '';
+        } finally {
+            return json_encode($param);
+        }
+    }
+
     public function register($request = []){
         $param = new stdClass;
         // Param for users / ketua

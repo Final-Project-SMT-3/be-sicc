@@ -30,6 +30,26 @@ class UsersController extends Controller{
         }
     }
 
+    public function getDataUser(){
+        if(isset($_SERVER['HTTP_HTTP_TOKEN'])){
+            if($_SERVER['HTTP_HTTP_TOKEN'] == $this->getToken()){
+                echo $this->model->getDataUser($_POST);
+            } else{
+                $response = new stdClass;
+                $response->code = 403;
+                $response->message = 'Access Forbidden.';
+
+                echo json_encode($response);
+            }
+        } else{
+            $response = new stdClass;
+            $response->code = 403;
+            $response->message = 'Access Forbidden.';
+
+            echo json_encode($response);
+        }
+    }
+
     public function register(){
         if(isset($_SERVER['HTTP_HTTP_TOKEN'])){
             if($_SERVER['HTTP_HTTP_TOKEN'] == $this->getToken()){
