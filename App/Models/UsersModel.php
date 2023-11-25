@@ -36,9 +36,6 @@ class UsersModel{
                         JOIN master_detail_lomba as detail_lomba ON detail_lomba.id = k.id_detail_lomba 
                         JOIN master_lomba on master_lomba.id = detail_lomba.id_mst_lomba 
                         WHERE us.password = :pass AND us.username = :user 
-                        AND pd.created_at = (
-                            SELECT MAX(created_at) FROM pemilihan_dospem
-                        )
                         LIMIT 1";
     
             $result = $this->conn->prepare($query);
@@ -98,9 +95,6 @@ class UsersModel{
                     LEFT JOIN submit_judul AS sj ON sj.id_dospem = pd.id
                     LEFT JOIN submit_proposal AS sp ON sp.id_judul = sj.id
                     WHERE us.id = :id_user
-                     AND pd.created_at = (
-                            SELECT MAX(created_at) FROM pemilihan_dospem
-                        )
                     LIMIT 1";
     
             $result = $this->conn->prepare($query);
